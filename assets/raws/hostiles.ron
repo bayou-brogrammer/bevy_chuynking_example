@@ -1,0 +1,19 @@
+[
+  RawHostile(
+        name: "Kabold",
+        vision_range: 8,
+        ai: Hostile,
+        // Or you can set just the stats that are different than default
+        stats: RawStats(
+            max_hp: Some(120),
+            movement_cost: Some(80),
+            unarmed_damage: Some((5, 15))
+        ),
+        glyph: RawGlyph(
+          char: 'k',
+          fg: (255, 255, 255),
+          bg: None,
+          order: Item
+        ),
+    )
+]

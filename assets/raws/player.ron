@@ -1,0 +1,23 @@
+RawPlayer(
+    name: "Jabal",
+    vision_range: 11,
+    stats: RawStats(
+        max_hp: Some(100),
+        base_armor: Some(0),
+        magic_resistance: Some(0),
+        physical_resistance: Some(0),
+        movement_cost: Some(100),
+        unarmed_damage: Some((10, 25)),
+        unarmed_attack_cost: Some(100),
+        chance_to_hit: Some(0.75),
+        chance_to_evade: Some(0.10),
+        chance_to_crit: Some(0.05),
+        crit_dmg_modifier: Some(1.5)
+    ),
+    glyph: RawGlyph(
+        char: '@',
+        fg: (255, 255, 0),
+        bg: None,
+        order: Actor
+    ),
+)
