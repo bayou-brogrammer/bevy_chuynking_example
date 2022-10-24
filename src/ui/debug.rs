@@ -74,8 +74,6 @@ fn display_chunk_stats(
             }
 
             loaded_chunks.iter().for_each(|(chunk_key, chunk_entity)| {
-                ui.separator();
-
                 let chunk = chunks.get(*chunk_entity).unwrap();
                 let floor =
                     chunk.tiles.iter().filter(|tile| **tile == TileType::Floor).count();
@@ -84,16 +82,41 @@ fn display_chunk_stats(
                     chunk.tiles.iter().filter(|tile| **tile == TileType::Water).count();
                 let sand = chunk.tiles.iter().filter(|tile| **tile == TileType::Sand).count();
                 let soil = chunk.tiles.iter().filter(|tile| **tile == TileType::Soil).count();
-                let grass =
-                    chunk.tiles.iter().filter(|tile| **tile == TileType::Grass).count();
+                let grass = chunk
+                    .tiles
+                    .iter()
+                    .filter(|tile| **tile == TileType::Plant(PlantType::Grass))
+                    .count();
+
+                let daisy = chunk
+                    .tiles
+                    .iter()
+                    .filter(|tile| **tile == TileType::Plant(PlantType::Daisy))
+                    .count();
+
+                let heather = chunk
+                    .tiles
+                    .iter()
+                    .filter(|tile| **tile == TileType::Plant(PlantType::Heather))
+                    .count();
 
                 ui.label(format!("Chunk Key {:?}", chunk_key));
+                ui.separator();
+
+                ui.heading("Chunk Tiles");
+
                 ui.label(format!("Chunk floor tiles {:?}", floor));
                 ui.label(format!("Chunk wall tiles {:?}", wall));
-                ui.label(format!("Chunk water tiles{:?}", water));
                 ui.label(format!("Chunk sand tiles {:?}", sand));
                 ui.label(format!("Chunk soil tiles {:?}", soil));
-                ui.label(format!("Chunk graass tiles {:?}", grass));
+
+                ui.label(format!("Chunk water tiles{:?}", water));
+
+                ui.label(format!("Chunk grass tiles {:?}", grass));
+                ui.label(format!("Chunk Daisy tiles {:?}", daisy));
+                ui.label(format!("Chunk Heather tiles {:?}", heather));
+
+                ui.separator();
             });
         }
     });

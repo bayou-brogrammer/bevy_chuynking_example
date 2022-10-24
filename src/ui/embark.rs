@@ -54,7 +54,7 @@ pub fn resume_embark_menu(mut commands: Commands, ui: Res<UiAssets>) {
             size: tilemap_size,
             storage: tile_storage,
             texture: TilemapTexture::Single(ui.embark_tiles.clone()),
-            transform: get_tilemap_center_transform(&tilemap_size, &grid_size, 0.0),
+            transform: get_tilemap_center_transform(&tilemap_size, &grid_size, 999.0),
             ..Default::default()
         })
         .insert(EmbarkGrid);
@@ -123,12 +123,15 @@ pub fn embark_menu(
     if highlighed_location != IVec2::ZERO {
         for event in mouse_button_event_reader.iter() {
             if event.state.is_pressed() && event.button == MouseButton::Left {
-                println!("Selected Region: {}", highlighed_location);
                 embark.loc = highlighed_location;
 
                 let crash_location = PlanetLocation::new(highlighed_location);
-                let tile_loc = crash_location.to_world();
+                let tile_loc = crash_location.to_world() + IVec2 { x: 128, y: 128 };
                 let pos = Position::with_tile_coords(crash_location, tile_loc.x, tile_loc.y);
+
+                println!("Crash Loc: {:?}", crash_location);
+                println!("Tile Loc: {:?}", tile_loc);
+                println!("Pos: {:?}", pos);
 
                 commands
                     .spawn()

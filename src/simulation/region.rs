@@ -40,7 +40,8 @@ pub enum RegionStatus {
 pub struct Region {
     pub material: Vec<usize>,
     pub status: RegionStatus,
-    pub chunks_loaded: usize,
+    pub tiles: Vec<TileType>,
+    pub chunks_loaded: Vec<bool>,
     pub location: PlanetLocation,
 }
 
@@ -48,10 +49,15 @@ impl Region {
     pub fn new(location: PlanetLocation) -> Self {
         Self {
             location,
-            chunks_loaded: 0,
             status: RegionStatus::NotLoaded,
             material: vec![0; REGION_TILES_COUNT],
+            chunks_loaded: vec![false; CHUNKS_PER_REGION],
+            tiles: vec![TileType::Empty; REGION_TILES_COUNT],
         }
+    }
+
+    pub fn is_floor(&self, idx: usize) -> bool {
+        matches!(self.tiles[idx], TileType::Floor { .. })
     }
 }
 

@@ -1,7 +1,9 @@
 use crate::prelude::*;
 use derive_more::{Deref, DerefMut};
 
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, Deref, DerefMut)]
+#[derive(
+    Default, Debug, Copy, Clone, PartialEq, Eq, Hash, Deref, DerefMut, Serialize, Deserialize,
+)]
 pub struct PlanetLocation(pub IVec2);
 
 impl PlanetLocation {

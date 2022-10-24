@@ -21,7 +21,7 @@ pub struct Biome {
     pub max_mutation: u8,
     pub occurs: Vec<BiomeType>,
     pub soils: SoilTypes,
-    pub trees: Vec<TreeType>,
+    pub trees: Vec<Tree>,
     pub nouns: Vec<String>,
     pub worldgen_tile: usize,
     pub embark_tile: usize,
@@ -34,7 +34,7 @@ pub struct SoilTypes {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct TreeType {
+pub struct Tree {
     pub tree: String,
     pub freq: f32,
 }

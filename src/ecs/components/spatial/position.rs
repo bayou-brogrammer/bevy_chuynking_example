@@ -15,7 +15,11 @@ impl Position {
     }
 
     pub fn with_tile_coords<N: Into<i32>>(region: PlanetLocation, x: N, y: N) -> Self {
-        Self { chunk_min: ChunkLocation::ZERO, region, tile: RegionTileLocation::new(x, y) }
+        Self {
+            region,
+            chunk_min: region.to_world().into(),
+            tile: RegionTileLocation::new(x, y),
+        }
     }
 
     /// Convert to a region tile index

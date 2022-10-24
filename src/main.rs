@@ -4,7 +4,6 @@ pub mod raws;
 
 mod bterm;
 mod camera;
-mod chunking;
 mod constants;
 mod ecs;
 mod loading;
@@ -27,7 +26,6 @@ mod prelude {
     pub use direction::Direction;
 
     pub use crate::camera::*;
-    pub use crate::chunking::*;
     pub use crate::constants::*;
     pub use crate::ecs::*;
     pub use crate::loading::*;
@@ -100,6 +98,7 @@ fn main() {
         ConditionSet::new()
             .run_in_state(GameState::RegionGen)
             .with_system(load_regions)
+            .with_system(region_tile_applicator_system)
             .into(),
     );
 

@@ -19,15 +19,21 @@ pub fn render_state(
             if camera.viewport.point_in_rect(pt) {
                 let screen_pt = camera.world_to_screen(pt);
                 let (glyph, color) = match tile {
-                    TileType::Floor => ('f', WHITE),
-                    TileType::Wall => ('w', WHITE),
+                    TileType::Floor => ('.', WHITE),
+                    TileType::Wall => ('#', WHITE),
                     TileType::Water => ('~', BLUE),
-                    TileType::Grass => ('"', GREEN),
                     TileType::Sand => ('.', SANDYBROWN),
                     TileType::Soil => ('.', BROWN1),
-                    TileType::Tree => ('♣', SEA_GREEN),
-                    TileType::Daisy => ('*', YELLOW),
-                    TileType::Heather => ('*', PURPLE),
+                    TileType::Tree(tree_type) => match tree_type {
+                        TreeType::Evergreen => ('T', GREEN),
+                        TreeType::Deciduous => ('T', BROWN1),
+                    },
+                    TileType::Plant(plant_type) => match plant_type {
+                        PlantType::Grass => ('"', GREEN),
+                        PlantType::Daisy => ('d', YELLOW),
+                        PlantType::Heather => ('h', PURPLE),
+                    },
+                    TileType::Empty => (' ', BLACK),
                 };
 
                 batch.set(screen_pt, ColorPair::new(color, BLACK), to_cp437(glyph));

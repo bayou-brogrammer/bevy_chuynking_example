@@ -1,9 +1,11 @@
-use std::time::Duration;
-
 use crate::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
+use std::time::Duration;
+
+mod divide;
+mod plants;
 
 lazy_static! {
     static ref REGION_GEN: Lazy<RwLock<RegionGen>> =
@@ -18,11 +20,12 @@ pub enum RegionBuilderStatus {
     Chunking,
     Loaded,
     Water,
-    Ramping,
+    // Ramping,
     Vegetation,
     Trees,
-    Crashing,
-    Debris,
+    // Crashing,
+    // Debris,
+    Dividing,
     Done,
 }
 
@@ -53,12 +56,13 @@ impl RegionBuilder {
             RegionBuilderStatus::Initializing => String::from("Initializing"),
             RegionBuilderStatus::Chunking => String::from("Dividing & Conquering"),
             RegionBuilderStatus::Loaded => String::from("Region activated, making it pretty"),
-            RegionBuilderStatus::Ramping => String::from("Smoothing Rough Edges"),
-            RegionBuilderStatus::Crashing => String::from("Crash Landing"),
+            // RegionBuilderStatus::Ramping => String::from("Smoothing Rough Edges"),
+            // RegionBuilderStatus::Crashing => String::from("Crash Landing"),
             RegionBuilderStatus::Water => String::from("Just Add Water"),
             RegionBuilderStatus::Vegetation => String::from("Re-seeding the lawn"),
-            RegionBuilderStatus::Debris => String::from("Making a terrible mess"),
+            // RegionBuilderStatus::Debris => String::from("Making a terrible mess"),
             RegionBuilderStatus::Trees => String::from("Planting trees"),
+            RegionBuilderStatus::Dividing => String::from("Dividing into chunks..."),
             RegionBuilderStatus::Done => String::from("Done"),
         }
     }
@@ -88,6 +92,25 @@ fn build_region(planet: Planet, planet_idx: PlanetLocation) {
 
     println!("Region loaded");
     update_status(RegionBuilderStatus::Loaded);
+
+    // Beaches
+
+    // Vegetation
+    println!("Veggies");
+    update_status(RegionBuilderStatus::Vegetation);
+    plants::grow_plants(planet_idx);
+    // std::thread::sleep(Duration::from_secs(2));
+
+    // Trees
+    println!("Trees");
+    update_status(RegionBuilderStatus::Trees);
+    plants::plant_trees(planet_idx);
+
+    // Divide
+    // println!("Divide");
+    // update_status(RegionBuilderStatus::Dividing);
+    // divide::divide_into_chunks(planet_idx);
+
     update_status(RegionBuilderStatus::Done);
 }
 
@@ -95,17 +118,4 @@ pub fn spawn_playable_region(location: PlanetLocation) {
     let index = location.to_region_index();
     let mut region_lock = REGIONS.write();
     region_lock.regions.insert(index, Region::new(location));
-}
-
-/// Returns true when a region has reached the "TilesCreated" stage---it
-/// can be queried for tile content. Prettying hasn't occurred yet,
-/// neither has render creation.
-pub fn is_region_loaded(location: PlanetLocation) -> bool {
-    let index = location.to_region_index();
-    let region_lock = REGIONS.read();
-    if let Some(region) = region_lock.regions.get(&index) {
-        region.status == RegionStatus::CreatedTiles
-    } else {
-        false
-    }
 }
