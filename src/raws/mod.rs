@@ -4,21 +4,32 @@ use parking_lot::RwLock;
 
 mod block_type;
 mod formats;
+mod strata;
 
 pub use block_type::*;
 pub use formats::*;
+pub use strata::*;
 
 lazy_static! {
     pub static ref RAWS: Lazy<RwLock<Raws>> = Lazy::new(|| RwLock::new(Raws::new()));
 }
 
 pub struct Raws {
-    pub biomes: Biomes,
     pub names: Names,
+    pub biomes: Biomes,
+    pub plants: Plants,
+    pub materials: Materials,
 }
 
 impl Raws {
-    fn new() -> Self { Self { biomes: Biomes::new(), names: Names::new() } }
+    fn new() -> Self {
+        Self {
+            names: Names::new(),
+            plants: Plants::new(),
+            biomes: Biomes::new(),
+            materials: Materials::new(),
+        }
+    }
 
     fn load_index(&self) -> Vec<String> {
         use std::fs::File;
@@ -44,4 +55,7 @@ impl Raws {
     }
 }
 
-pub fn load_raws() { RAWS.write().load(); }
+pub fn load_raws() {
+    RAWS.write().load();
+    strata::verify_strata();
+}

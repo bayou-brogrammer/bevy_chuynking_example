@@ -72,4 +72,5 @@ bevy_asset_loader = { git = "https://github.com/NiklasEi/bevy_asset_loader", fea
   "stageless",
   "standard_dynamic_assets",
 ] }
+bevy_ecs_tilemap = "0.8"
 bevy_simple_tilemap = "0.9"

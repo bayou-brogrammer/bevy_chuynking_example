@@ -1,16 +1,14 @@
-use bracket_noise::prelude::*;
-use serde::{Deserialize, Serialize};
+use crate::prelude::*;
 
-use crate::{load_data, save_data, BiomeType};
-
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct Planet {
     pub rng_seed: u64,
     pub noise_seed: u64,
-    pub water_height: u32,
-    pub plains_height: u32,
-    pub hills_height: u32,
     pub lacunarity: f32,
+    pub water_height: u32,
+    pub hills_height: u32,
+    pub plains_height: u32,
+    pub rivers: Vec<River>,
     pub landblocks: Vec<Landblock>,
 }
 
@@ -19,9 +17,9 @@ pub struct Landblock {
     pub height: u32,
     pub variance: u32,
     pub btype: BiomeType,
-    pub temperature_c: f32,
     pub rainfall_mm: i32,
     pub biome_idx: usize,
+    pub temperature_c: f32,
     pub air_pressure_kpa: f32,
     pub prevailing_wind: Direction,
     pub neighbors: [(Direction, usize); 4],
@@ -58,14 +56,15 @@ impl Planet {
     }
 }
 
-pub fn save_planet(state: Planet) {
-    if let Err(err) = save_data("savegame/world.dat".to_string(), state) {
+pub fn save_planet(planet: Planet) {
+    println!("Saving planet");
+    if let Err(err) = save_data(world_save_location("world.dat"), planet) {
         println!("Error saving world: {:?}", err);
     }
 }
 
 pub fn load_planet() -> Planet {
-    match load_data::<Planet>("savegame/world.dat".to_string()) {
+    match load_data::<Planet>(world_save_location("world.dat")) {
         Ok(planet) => planet,
         Err(err) => panic!("Error loading world: {:?}", err),
     }

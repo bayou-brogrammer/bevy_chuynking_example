@@ -1,7 +1,9 @@
 use crate::prelude::*;
-use derive_more::Sub;
+use derive_more::{Add, Sub};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Sub, Serialize, Deserialize)]
+#[derive(
+    Default, Clone, Copy, Debug, PartialEq, Eq, Hash, Add, Sub, Serialize, Deserialize,
+)]
 pub struct ChunkLocation {
     pub x: usize,
     pub y: usize,
@@ -19,6 +21,9 @@ impl ChunkLocation {
     pub const fn splat(v: usize) -> Self { Self { x: v, y: v } }
 
     pub fn to_tile_index(&self) -> usize { mapidx(self.x, self.y) }
+
+    #[inline]
+    pub fn as_point(&self) -> Point { Point::new(self.x as i32, self.y as i32) }
 
     /// Casts all elements of `self` to `f32`.
     #[inline]

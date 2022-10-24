@@ -25,7 +25,6 @@ pub fn planet_biomes(planet: &mut Planet) {
             panic!("No biomes for {:#?}", lb);
         } else if let Some(choice) = rng.random_slice_entry(&possible_biomes) {
             planet.landblocks[i].biome_idx = choice.0;
-            println!("Selected: {:?} : {}", planet.landblocks[i].btype, choice.1.name);
         }
     }
 }

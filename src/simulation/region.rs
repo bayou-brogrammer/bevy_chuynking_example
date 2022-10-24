@@ -25,12 +25,34 @@ impl Regions {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Default, Copy, Clone, PartialEq, Eq, Debug)]
+pub enum RegionStatus {
+    #[default]
+    NotLoaded,
+    CreatingTiles,
+    CreatedTiles,
+    Done,
+}
+
+#[derive(Default, Debug)]
 pub struct Region {
+    pub material: Vec<usize>,
+    pub status: RegionStatus,
+    pub chunks_loaded: usize,
     pub location: PlanetLocation,
 }
 
 impl Region {
-    pub fn new(location: PlanetLocation) -> Self { Self { location } }
+    pub fn new(location: PlanetLocation) -> Self {
+        Self {
+            location,
+            chunks_loaded: 0,
+            status: RegionStatus::NotLoaded,
+            material: vec![0; REGION_TILES_COUNT],
+        }
+    }
 }
 
 impl BaseMap for Region {}

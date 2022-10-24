@@ -1,12 +1,16 @@
 use bevy::prelude::{Component, PluginGroup};
 
-mod debug_ui;
+mod debug;
 mod embark;
-mod planet_builder;
+mod embark_region;
+mod main_menu;
+mod world_gen;
 
-pub use debug_ui::*;
+pub use debug::*;
 pub use embark::*;
-pub use planet_builder::*;
+pub use embark_region::*;
+pub use main_menu::*;
+pub use world_gen::*;
 
 #[derive(Component)]
 pub struct BackgroundImage;
@@ -26,6 +30,11 @@ impl Default for UiResources {
 pub struct UIPlugins;
 impl PluginGroup for UIPlugins {
     fn build(&mut self, group: &mut bevy::app::PluginGroupBuilder) {
-        group.add(PlanetBuilderMenuPlugin).add(EmbarkMenuPlugin).add(DebugUiPlugin);
+        group
+            .add(MainMenuPlugin)
+            .add(WorldGenMenuPlugin)
+            .add(EmbarkMenuPlugin)
+            .add(EmbarkRegionPlugin)
+            .add(DebugUiPlugin);
     }
 }

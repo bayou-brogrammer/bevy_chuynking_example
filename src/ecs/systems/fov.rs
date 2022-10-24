@@ -16,7 +16,7 @@ pub fn fov(
         if loaded_chunks.entity(chunk_key).is_some() {
             fov.visible_tiles = field_of_view_set(Point::new(pt.x, pt.y), fov.radius, region);
         } else {
-            println!("No chunk entity found for {:?}", chunk_key);
+            println!("FOV: No chunk entity found for {:?}", chunk_key);
         }
     }
 }

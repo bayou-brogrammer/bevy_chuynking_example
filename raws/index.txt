@@ -1,1 +1,12 @@
 raws/biome_bundle.ron
+raws/plants_bundle.ron
+
+# Materials
+
+raws/mats/igneous.ron
+raws/mats/ore.ron
+raws/mats/sediment.ron
+raws/mats/soil.ron
+raws/mats/sand.ron
+raws/mats/synthetic.ron
+raws/mats/wood.ron

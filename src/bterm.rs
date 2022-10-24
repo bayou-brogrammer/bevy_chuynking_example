@@ -2,11 +2,12 @@ use crate::prelude::*;
 
 // Screens
 // pub const TILE_SIZE: f32 = 8.0;
-pub const SCREEN_WIDTH: i32 = 96;
-pub const SCREEN_HEIGHT: i32 = 96;
+pub const SCREEN_WIDTH: i32 = 192;
+pub const SCREEN_HEIGHT: i32 = 120;
 
 pub fn setup_bterm() -> BTermBuilder {
     BTermBuilder::empty()
+        .with_ortho_camera(false)
         .with_random_number_generator(true)
         .with_font("terminal8x8.png", 16, 16, (8.0, 8.0))
         // .with_font("terminal10x10.png", 16, 16, (10.0, 10.0))

@@ -1,5 +1,4 @@
-use crate::planet::Direction;
-use crate::prelude::*;
+use super::*;
 
 pub fn planet_neighbors_four_way(idx: usize) -> [(Direction, usize); 4] {
     let mut result = [

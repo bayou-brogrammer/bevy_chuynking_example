@@ -4,6 +4,7 @@ pub enum GameState {
     Loading,
 
     MainMenu,
+    WorldGen,
     PlanetGen,
     Embark,
     RegionGen,

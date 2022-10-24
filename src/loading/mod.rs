@@ -14,10 +14,9 @@ pub fn resume_loading_screen(mut commands: Commands) {
 
 pub fn loading_screen(
     mut commands: Commands,
-    mut egui_context: ResMut<EguiContext>,
     mut res: ResMut<LoadingResource>,
+    mut egui_context: ResMut<EguiContext>,
 ) {
-    println!("Loading screen");
     egui::Window::new("Loading - Please Wait")
         .resizable(false)
         .title_bar(false)
@@ -34,8 +33,11 @@ pub struct UiAssets {
     #[asset(key = "backgrounds")]
     pub backgrounds: Handle<TextureAtlas>,
 
+    #[asset(key = "embark_tiles_atlas")]
+    pub embark_tiles_atlas: Handle<TextureAtlas>,
+
     #[asset(key = "embark_tiles")]
-    pub embark_tiles: Handle<TextureAtlas>,
+    pub embark_tiles: Handle<Image>,
 
     #[asset(key = "worldgen_tiles")]
     pub worldgen_tex: Handle<Image>,

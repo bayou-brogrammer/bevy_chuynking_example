@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// Represents a location in the world
-#[derive(Component, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Component, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
     pub region: PlanetLocation,
     pub chunk_min: ChunkLocation,
@@ -23,6 +23,11 @@ impl Position {
 
     /// Convert to render-space world coordinates
     pub fn to_world(&self) -> IVec2 { self.region.to_world() + self.tile.to_world() }
+
+    pub fn to_point(&self) -> Point {
+        let world_pt = self.to_world();
+        Point::new(world_pt.x, world_pt.y)
+    }
 
     /// Apply a tile offset and recalculate IDs as needed.
     /// Returns a new position.

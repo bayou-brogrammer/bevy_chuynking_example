@@ -11,7 +11,7 @@ pub fn zero_fill(planet: &mut Planet) {
                 rainfall_mm: 0,
                 biome_idx: usize::MAX,
                 air_pressure_kpa: 0.0,
-                prevailing_wind: crate::planet::Direction::None,
+                prevailing_wind: Direction::None,
                 neighbors: planet_neighbors_four_way(planet_idx(x, y)),
             });
         }

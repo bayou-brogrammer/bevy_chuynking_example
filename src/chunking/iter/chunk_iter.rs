@@ -37,14 +37,11 @@ impl Iterator for ChunkIterator {
 }
 
 impl ExactSizeIterator for ChunkIterator {
-    fn len(&self) -> usize {
-        CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE
-    }
+    fn len(&self) -> usize { CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::simulation::REGION_TILES_COUNT;
 
     use super::*;
 
@@ -54,7 +51,7 @@ mod test {
         for _ in ChunkIterator::new(ChunkLocation { x: 0, y: 0 }) {
             n += 1;
         }
-        assert_eq!(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE, n);
+        assert_eq!(CHUNK_SIZE * CHUNK_SIZE, n);
     }
 
     #[test]
@@ -62,30 +59,6 @@ mod test {
         for n in ChunkIterator::new(ChunkLocation { x: 0, y: 0 }) {
             assert!(n.x < CHUNK_SIZE);
             assert!(n.y < CHUNK_SIZE);
-            assert!(n.z < CHUNK_SIZE);
         }
-    }
-
-    #[test]
-    fn test_bounds_full() {
-        use crate::simulation::{CHUNK_DEPTH, CHUNK_HEIGHT, CHUNK_WIDTH};
-        let mut count = 0;
-        for z in 0..CHUNK_DEPTH {
-            for y in 0..CHUNK_HEIGHT {
-                for x in 0..CHUNK_WIDTH {
-                    let base = ChunkLocation { x: x * CHUNK_SIZE, y: y * CHUNK_SIZE };
-                    for n in ChunkIterator::new(base) {
-                        assert!(n.x >= base.x);
-                        assert!(n.x < base.x + CHUNK_SIZE);
-                        assert!(n.y >= base.y);
-                        assert!(n.y < base.y + CHUNK_SIZE);
-                        assert!(n.z >= base.z);
-                        assert!(n.z < base.z + CHUNK_SIZE);
-                        count += 1;
-                    }
-                }
-            }
-        }
-        assert_eq!(REGION_TILES_COUNT, count);
     }
 }

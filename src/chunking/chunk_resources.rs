@@ -18,9 +18,26 @@ pub enum ChunkLoadingSystem {
 }
 
 /// Resource storing the current chunk the player is in as well as its current coords.
+#[derive(Debug)]
 pub struct CurrentLocalPlayerChunk {
     pub chunk_min: IVec2,
     pub world_pos: IVec2,
+}
+
+impl CurrentLocalPlayerChunk {
+    pub const ZERO: Self = Self::splat(0);
+
+    #[inline]
+    pub fn empty() -> Self { Self::ZERO }
+
+    #[inline]
+    pub fn new(chunk_min: IVec2, world_pos: IVec2) -> Self { Self { chunk_min, world_pos } }
+
+    /// Creates a vector with all elements set to `v`.
+    #[inline]
+    pub const fn splat(v: i32) -> Self {
+        Self { world_pos: IVec2::splat(v), chunk_min: IVec2::splat(v) }
+    }
 }
 
 // Resource holding the view distance.

@@ -9,7 +9,7 @@ pub fn movement(
         if let Ok((mut pos, player)) = pos_q.get_mut(entity) {
             pos.tile = RegionTileLocation::new(destination.x, destination.y);
 
-            let world_pos: IVec2 = pos.to_world();
+            let world_pos: IVec2 = pos.tile.to_world();
             let nearest_chunk_origin = !IVec2::splat((CHUNK_SIZE - 1) as i32) & world_pos;
             if pos.chunk_min != nearest_chunk_origin.into() {
                 pos.chunk_min = nearest_chunk_origin.into();

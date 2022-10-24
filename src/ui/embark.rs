@@ -1,13 +1,11 @@
 use crate::prelude::*;
-use bevy::{input::mouse::MouseButtonInput, math::ivec3};
+use bevy::input::mouse::MouseButtonInput;
 use bevy_egui::*;
-use bevy_simple_tilemap::prelude::*;
 
 #[derive(Component)]
 pub struct EmbarkResources {
     pub planet: Planet,
-    pub tile_x: usize,
-    pub tile_y: usize,
+    pub loc: IVec2,
 }
 
 #[derive(Component)]
@@ -24,38 +22,44 @@ pub fn resume_embark_menu(mut commands: Commands, ui: Res<UiAssets>) {
         .insert(EmbarkGrid {});
 
     let planet = load_planet();
-    let mut tiles: Vec<(IVec3, Option<Tile>)> = Vec::new();
-    for y in 0..WORLD_HEIGHT as i32 {
-        for x in 0..WORLD_WIDTH as i32 {
-            let pidx = planet_idx(x as usize, y as usize);
-            let biome_idx = planet.landblocks[pidx].biome_idx;
-            let tile_index = crate::raws::RAWS.read().biomes.areas[biome_idx].embark_tile;
-            let tx = x - WORLD_WIDTH as i32 / 2;
-            let ty = y - WORLD_HEIGHT as i32 / 2;
-            tiles.push((
-                ivec3(tx, ty, 0),
-                Some(Tile { sprite_index: tile_index as u32, ..Default::default() }),
-            ));
-        }
-    }
+    let tiles: Vec<(TilePos, u32)> = fill_tiles(&planet);
 
-    let mut tilemap = TileMap::default();
-    tilemap.set_tiles(tiles);
+    let tilemap_size = TilemapSize { x: WORLD_WIDTH as u32, y: WORLD_HEIGHT as u32 };
+    let tilemap_entity = commands.spawn().id();
+    let mut tile_storage = TileStorage::empty(tilemap_size);
 
-    // Set up tilemap
-    let tilemap_bundle = TileMapBundle {
-        tilemap,
-        texture_atlas: ui.embark_tiles.clone(),
-        transform: Transform {
-            scale: Vec3::splat(1.0),
-            translation: Vec3::new(0.0, 0.0, 0.0),
+    tiles.iter().for_each(|(tile_pos, tile)| {
+        let tile_entity = commands
+            .spawn()
+            .insert_bundle(TileBundle {
+                position: *tile_pos,
+                texture: TileTexture(*tile),
+                tilemap_id: TilemapId(tilemap_entity),
+                ..Default::default()
+            })
+            .insert(EmbarkGrid)
+            .id();
+
+        tile_storage.set(tile_pos, tile_entity);
+    });
+
+    let tile_size = TilemapTileSize { x: 8.0, y: 8.0 };
+    let grid_size = tile_size.into();
+
+    commands
+        .entity(tilemap_entity)
+        .insert_bundle(TilemapBundle {
+            tile_size,
+            grid_size,
+            size: tilemap_size,
+            storage: tile_storage,
+            texture: TilemapTexture::Single(ui.embark_tiles.clone()),
+            transform: get_tilemap_center_transform(&tilemap_size, &grid_size, 0.0),
             ..Default::default()
-        },
-        ..Default::default()
-    };
+        })
+        .insert(EmbarkGrid);
 
-    commands.spawn_bundle(tilemap_bundle).insert(EmbarkGrid {});
-    commands.insert_resource(EmbarkResources { planet, tile_x: 0, tile_y: 0 });
+    commands.insert_resource(EmbarkResources { planet, loc: IVec2::new(0, 0) });
 }
 
 pub fn embark_menu(
@@ -63,12 +67,11 @@ pub fn embark_menu(
     mut commands: Commands,
     mut embark: ResMut<EmbarkResources>,
     mut egui_context: ResMut<EguiContext>,
-    q_camera: Query<&Transform, With<Camera>>,
+    mut q_camera: Query<&mut Transform, With<Camera>>,
     mut mouse_button_event_reader: EventReader<MouseButtonInput>,
 ) {
     // Mouse Picking
-    let mut tile_x = 0;
-    let mut tile_y = 0;
+    let mut highlighed_location = IVec2::new(0, 0);
     let mut description = String::new();
 
     // get the primary window
@@ -84,11 +87,12 @@ pub fn embark_menu(
         let p = pos - size / 2.0;
 
         // assuming there is exactly one main camera entity, so this is OK
-        let camera_transform = q_camera.single();
+        let mut camera_transform = q_camera.single_mut();
+
+        camera_transform.scale = Vec3::new(1.5, 1.5, 1.0);
 
         // apply the camera transform
         let pos_wld = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
-        //eprintln!("World coords: {}/{}", pos_wld.x, pos_wld.y);
         let width = WORLD_WIDTH as f32 * 8.0;
         let height = WORLD_HEIGHT as f32 * 8.0;
         if pos_wld.y > -(height / 2.0)
@@ -96,10 +100,13 @@ pub fn embark_menu(
             && pos_wld.x > -(width / 2.0)
             && pos_wld.x < width / 2.0
         {
-            tile_x = ((pos_wld.x + (width / 2.0)) / 8.0) as i32;
-            tile_y = ((pos_wld.y + (height / 2.0)) / 8.0) as i32;
+            highlighed_location = IVec2::new(
+                ((pos_wld.x + (width / 2.0)) / 8.0) as i32,
+                ((pos_wld.y + (height / 2.0)) / 8.0) as i32,
+            );
 
-            let pidx = planet_idx(tile_x as usize, tile_y as usize);
+            let pidx =
+                planet_idx(highlighed_location.x as usize, highlighed_location.y as usize);
             let lb = &embark.planet.landblocks[pidx];
             let bidx = lb.biome_idx;
             description = format!(
@@ -113,24 +120,44 @@ pub fn embark_menu(
         }
     }
 
-    if tile_x != 0 && tile_y != 0 {
+    if highlighed_location != IVec2::ZERO {
         for event in mouse_button_event_reader.iter() {
             if event.state.is_pressed() && event.button == MouseButton::Left {
-                println!("Selected Region: {}x{}", tile_x, tile_y);
-                embark.tile_x = tile_x as usize;
-                embark.tile_y = tile_y as usize;
-                commands.insert_resource(NextState(GameState::InGame));
+                println!("Selected Region: {}", highlighed_location);
+                embark.loc = highlighed_location;
+
+                let crash_location = PlanetLocation::new(highlighed_location);
+                let tile_loc = crash_location.to_world();
+                let pos = Position::with_tile_coords(crash_location, tile_loc.x, tile_loc.y);
+
+                commands
+                    .spawn()
+                    .insert(Player)
+                    .insert(pos)
+                    .insert(Glyph::new(
+                        to_cp437('@'),
+                        ColorPair::new(WHITE, BLACK),
+                        RenderOrder::Actor,
+                    ))
+                    .insert(FieldOfView::new(8));
+
+                commands.insert_resource(CurrentLocalPlayerChunk::new(
+                    crash_location.to_world(),
+                    tile_loc,
+                ));
+                commands.insert_resource(CameraView::new(Point::new(tile_loc.x, tile_loc.y)));
+                commands.insert_resource(NextState(GameState::RegionGen));
             }
         }
     }
 
     egui::Window::new("Prepare to Evacuate the Colony Ship")
         .title_bar(true)
-        .fixed_pos(egui::Pos2::new(10.0, 10.0))
+        .fixed_pos(egui::Pos2::new(500., 10.0))
         .show(egui_context.ctx_mut(), |ui| {
-            if tile_x != 0 && tile_y != 0 {
+            if highlighed_location != IVec2::ZERO {
                 ui.label("Select escape pod target");
-                ui.label(format!("Tile: {}, {}", tile_x, tile_y));
+                ui.label(format!("Tile: {}", highlighed_location));
                 ui.label(description);
             }
         });

@@ -5,8 +5,8 @@ use crate::{
 
 pub const VIEWPORT_X_OFFSET: i32 = SCREEN_WIDTH / 2;
 pub const VIEWPORT_Y_OFFSET: i32 = SCREEN_HEIGHT / 2;
-pub const VIEWPORT_WIDTH: i32 = 500;
-pub const VIEWPORT_HEIGHT: i32 = 500;
+pub const VIEWPORT_WIDTH: i32 = 384;
+pub const VIEWPORT_HEIGHT: i32 = 384;
 
 #[derive(Component, Debug, Copy, Clone)]
 pub struct CameraView {

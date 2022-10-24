@@ -1,5 +1,4 @@
 use super::*;
-use crate::planet::Direction;
 use bevy::utils::HashSet;
 
 struct RainParticle {

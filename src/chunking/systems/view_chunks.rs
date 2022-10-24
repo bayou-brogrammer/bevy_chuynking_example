@@ -1,16 +1,15 @@
 use crate::prelude::*;
-use bevy::{ecs::schedule::ShouldRun, utils::FloatOrd};
+use bevy::utils::FloatOrd;
 
 /// Run criteria for the [`update_view_chunks`] system
-pub fn update_view_chunks_criteria(
-    view_distance: Res<ChunkLoadRadius>,
-    player_pos: Res<CurrentLocalPlayerChunk>,
-) -> ShouldRun {
-    if player_pos.is_changed() || view_distance.is_changed() {
-        ShouldRun::Yes
-    } else {
-        ShouldRun::No
-    }
+pub fn should_update_view_chunks(
+    view_distance: &Res<ChunkLoadRadius>,
+    player_pos: &Res<CurrentLocalPlayerChunk>,
+) -> bool {
+    player_pos.is_changed()
+        || view_distance.is_changed()
+        || player_pos.is_added()
+        || view_distance.is_added()
 }
 
 /// Checks for the loaded chunks around the player and schedules loading of new chunks in sight
@@ -20,6 +19,10 @@ pub fn update_view_chunks(
     player_pos: Res<CurrentLocalPlayerChunk>,
     mut chunk_command_queue: ResMut<ChunkCommandQueue>,
 ) {
+    if !should_update_view_chunks(&view_radius, &player_pos) {
+        return;
+    }
+
     // quick n dirty circular chunk loading.
     //perf: optimize this.
     for x in -view_radius.horizontal..=view_radius.horizontal {
@@ -31,10 +34,7 @@ pub fn update_view_chunks(
             let chunk_key = {
                 let mut pos: IVec2 = player_pos.chunk_min
                     + IVec2::new(x * CHUNK_SIZE as i32, y * CHUNK_SIZE as i32);
-
                 pos.x = pos.x.max(0);
-                // pos.y = pos.y.max(0);
-
                 pos
             };
 
@@ -55,7 +55,6 @@ pub fn update_view_chunks(
         if delta.x.pow(2) >= view_radius.horizontal.pow(2) * (CHUNK_SIZE as i32).pow(2)
             || delta.y.pow(2) >= view_radius.vertical.pow(2) * (CHUNK_SIZE as i32).pow(2)
         {
-            // println!("Unloading chunk {:?}", loaded_chunk);
             chunk_command_queue.destroy.push(*loaded_chunk);
         }
     }

@@ -8,5 +8,5 @@ pub fn load_raws(
     res.cycle += 1;
     ui.label("Loading Raw Files");
     crate::raws::load_raws();
-    commands.insert_resource(NextState(GameState::PlanetGen));
+    commands.insert_resource(NextState(GameState::MainMenu));
 }

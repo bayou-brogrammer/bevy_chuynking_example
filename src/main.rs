@@ -5,11 +5,11 @@ pub mod raws;
 mod bterm;
 mod camera;
 mod chunking;
+mod constants;
 mod ecs;
-mod generation;
 mod loading;
-mod region;
 mod saveload;
+mod simulation;
 mod tile_type;
 mod ui;
 mod util;
@@ -20,6 +20,7 @@ mod prelude {
     pub use iyes_loopless::prelude::*;
     pub use serde::{Deserialize, Serialize};
 
+    pub use bevy_ecs_tilemap::prelude::*;
     pub use bracket_bevy::prelude::*;
     pub use bracket_noise::prelude::*;
     pub use bracket_pathfinding::prelude::*;
@@ -27,12 +28,12 @@ mod prelude {
 
     pub use crate::camera::*;
     pub use crate::chunking::*;
+    pub use crate::constants::*;
     pub use crate::ecs::*;
-    pub use crate::generation::*;
     pub use crate::loading::*;
     pub use crate::raws::*;
-    pub use crate::region::*;
     pub use crate::saveload::*;
+    pub use crate::simulation::*;
     pub use crate::tile_type::*;
     pub use crate::ui::*;
     pub use crate::util::*;
@@ -51,10 +52,12 @@ mod prelude {
 }
 use bevy::render::texture::ImageSettings;
 use bevy_egui::EguiPlugin;
-use bevy_simple_tilemap::prelude::SimpleTileMapPlugin;
 pub use prelude::*;
 
 fn main() {
+    // Setup folders for saving
+    setup_io_access().expect("Failed to setup IO access");
+
     let mut app = App::new();
 
     app.insert_resource(WindowDescriptor {
@@ -71,10 +74,11 @@ fn main() {
         group.add_before::<bevy::asset::AssetPlugin, _>(
             bevy_embedded_assets::EmbeddedAssetPlugin,
         );
+
         group
     })
     .add_plugin(EguiPlugin)
-    .add_plugin(SimpleTileMapPlugin);
+    .add_plugin(TilemapPlugin);
 
     // Game States Setup
     app.add_loopless_state(GameState::Assets);
@@ -88,7 +92,32 @@ fn main() {
         .add_plugin(ChunkingPlugin);
 
     app.init_resource::<UiResources>()
-        .insert_resource(ChunkMap::<TileType, ChunkShape>::new(ChunkShape {}));
+        .insert_resource(ChunkMap::<TileType, ChunkShape>::new(ChunkShape {}))
+        .add_startup_system(setup)
+        .add_system(window_settings);
+
+    app.add_system_set(
+        ConditionSet::new()
+            .run_in_state(GameState::RegionGen)
+            .with_system(load_regions)
+            .into(),
+    );
 
     app.run();
+}
+
+pub fn setup(mut commands: Commands) {
+    commands.spawn_bundle(Camera2dBundle::default()).insert(BracketCamera);
+}
+
+pub struct WindowSettings {
+    width: f32,
+    height: f32,
+}
+
+pub fn window_settings(mut commands: Commands, mut windows: ResMut<Windows>) {
+    if let Some(window) = windows.get_primary_mut() {
+        let window_data = WindowSettings { width: window.width(), height: window.height() };
+        commands.insert_resource(window_data);
+    }
 }

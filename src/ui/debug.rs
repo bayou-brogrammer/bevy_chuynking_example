@@ -17,6 +17,7 @@ fn display_chunk_stats(
     dirty_chunks: Option<Res<DirtyChunks>>,
     loaded_chunks: Option<Res<ChunkEntities>>,
     player_q: Query<&Position, With<Player>>,
+    local_pos: Option<Res<CurrentLocalPlayerChunk>>,
     chunk_command_queue: Option<ResMut<ChunkCommandQueue>>,
     chunk_loading_radius: Option<ResMut<ChunkLoadRadius>>,
 ) {
@@ -26,7 +27,14 @@ fn display_chunk_stats(
             ui.label(format!("Player region: {:?}", player_pos.region));
             ui.label(format!("Player chunk: {:?}", player_pos.chunk_min));
             ui.label(format!("Player tile position: {:?}", player_pos.tile));
+
             ui.separator();
+
+            if let Some(local_pos) = local_pos {
+                ui.label(format!("Local World Pos: {:?}", local_pos.world_pos));
+                ui.label(format!("Local chunk: {:?}", local_pos.chunk_min));
+                ui.separator();
+            }
         }
 
         ui.heading("Chunks");
@@ -69,39 +77,39 @@ fn display_chunk_stats(
                 ui.separator();
 
                 let chunk = chunks.get(*chunk_entity).unwrap();
+                let floor =
+                    chunk.tiles.iter().filter(|tile| **tile == TileType::Floor).count();
+                let wall = chunk.tiles.iter().filter(|tile| **tile == TileType::Wall).count();
+                let water =
+                    chunk.tiles.iter().filter(|tile| **tile == TileType::Water).count();
+                let sand = chunk.tiles.iter().filter(|tile| **tile == TileType::Sand).count();
+                let soil = chunk.tiles.iter().filter(|tile| **tile == TileType::Soil).count();
+                let grass =
+                    chunk.tiles.iter().filter(|tile| **tile == TileType::Grass).count();
+
                 ui.label(format!("Chunk Key {:?}", chunk_key));
-                ui.label(format!("Chunk tiles {:?}", chunk.tiles.len()));
-                ui.label(format!("Chunk tiles {:?}", chunk.tiles.len()));
+                ui.label(format!("Chunk floor tiles {:?}", floor));
+                ui.label(format!("Chunk wall tiles {:?}", wall));
+                ui.label(format!("Chunk water tiles{:?}", water));
+                ui.label(format!("Chunk sand tiles {:?}", sand));
+                ui.label(format!("Chunk soil tiles {:?}", soil));
+                ui.label(format!("Chunk graass tiles {:?}", grass));
             });
         }
     });
 }
 
-fn display_debug_stats(
-    mut egui: ResMut<EguiContext>,
-    diagnostics: Res<Diagnostics>,
-    game_state: Res<CurrentState<GameState>>,
-) {
-    egui::Window::new("game stuff").show(egui.ctx_mut(), |ui| {
-        ui.label(format!("Current Game State: {:?}", game_state.0));
+fn display_window_stats(windows: Res<Windows>, mut egui: ResMut<EguiContext>) {
+    egui::Window::new("Windowing").show(egui.ctx_mut(), |ui| {
+        ui.heading("Bevy Windows");
 
-        ui.label(format!(
-            "Avg. FPS: {:.02}",
-            diagnostics
-                .get(FrameTimeDiagnosticsPlugin::FPS)
-                .unwrap()
-                .average()
-                .unwrap_or_default()
-        ));
+        windows.iter().for_each(|window| {
+            ui.separator();
 
-        ui.label(format!(
-            "Total Entity count: {}",
-            diagnostics
-                .get(EntityCountDiagnosticsPlugin::ENTITY_COUNT)
-                .unwrap()
-                .value()
-                .unwrap_or_default()
-        ));
+            ui.label(format!("Window ID: {:?}", window.id()));
+            ui.label(format!("Window W/H: {}/{}", window.width(), window.height()));
+            ui.label(format!("Window scale factor: {:?}", window.scale_factor()));
+        });
     });
 }
 
@@ -130,6 +138,27 @@ fn display_debug_ui_criteria(ui_state: Res<DebugUIState>) -> ShouldRun {
     }
 }
 
+/// This system will then change the title during execution
+fn change_title(mut windows: ResMut<Windows>, diagnostics: Res<Diagnostics>) {
+    if let Some(window) = windows.get_primary_mut() {
+        let title = format!(
+            "Avg. FPS: {:.02} | Entity Count: {}",
+            diagnostics
+                .get(FrameTimeDiagnosticsPlugin::FPS)
+                .unwrap()
+                .average()
+                .unwrap_or_default(),
+            diagnostics
+                .get(EntityCountDiagnosticsPlugin::ENTITY_COUNT)
+                .unwrap()
+                .value()
+                .unwrap_or_default()
+        );
+
+        window.set_title(title);
+    }
+}
+
 pub struct DebugUiPlugin;
 impl Plugin for DebugUiPlugin {
     fn build(&self, app: &mut App) {
@@ -139,12 +168,15 @@ impl Plugin for DebugUiPlugin {
             .add_stage_after(
                 CoreStage::PostUpdate,
                 "debug_ui_stage",
-                SystemStage::parallel().with_system(toggle_debug_ui_displays).with_system_set(
-                    SystemSet::new()
-                        .with_system(display_debug_stats)
-                        .with_system(display_chunk_stats)
-                        .with_run_criteria(display_debug_ui_criteria),
-                ),
+                SystemStage::parallel()
+                    .with_system(change_title)
+                    .with_system(toggle_debug_ui_displays)
+                    .with_system_set(
+                        SystemSet::new()
+                            .with_system(display_chunk_stats)
+                            .with_system(display_window_stats)
+                            .with_run_criteria(display_debug_ui_criteria),
+                    ),
             );
     }
 }
