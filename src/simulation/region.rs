@@ -52,7 +52,7 @@ impl Region {
             status: RegionStatus::NotLoaded,
             material: vec![0; REGION_TILES_COUNT],
             chunks_loaded: vec![false; CHUNKS_PER_REGION],
-            tiles: vec![TileType::Empty; REGION_TILES_COUNT],
+            tiles: vec![TileType::Floor; REGION_TILES_COUNT],
         }
     }
 

@@ -14,7 +14,7 @@ pub fn render_state(
     chunks.iter().for_each(|chunk| {
         chunk.tiles.iter().enumerate().for_each(|(idx, tile)| {
             let pt = Point::new(idx % CHUNK_SIZE, idx / CHUNK_SIZE)
-                + Point { x: chunk.pos.x as i32, y: chunk.pos.y as i32 };
+                + Point { x: chunk.location.x as i32, y: chunk.location.y as i32 };
 
             if camera.viewport.point_in_rect(pt) {
                 let screen_pt = camera.world_to_screen(pt);
@@ -33,7 +33,7 @@ pub fn render_state(
                         PlantType::Daisy => ('d', YELLOW),
                         PlantType::Heather => ('h', PURPLE),
                     },
-                    TileType::Empty => (' ', BLACK),
+                    // TileType::Empty => (' ', BLACK),
                 };
 
                 batch.set(screen_pt, ColorPair::new(color, BLACK), to_cp437(glyph));

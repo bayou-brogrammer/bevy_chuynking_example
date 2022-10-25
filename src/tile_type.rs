@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum TileType {
     #[default]
-    Empty,
     Floor,
     Wall,
     Water,

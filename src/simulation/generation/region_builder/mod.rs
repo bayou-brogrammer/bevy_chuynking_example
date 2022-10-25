@@ -99,12 +99,13 @@ fn build_region(planet: Planet, planet_idx: PlanetLocation) {
     println!("Veggies");
     update_status(RegionBuilderStatus::Vegetation);
     plants::grow_plants(planet_idx);
-    // std::thread::sleep(Duration::from_secs(2));
+    std::thread::sleep(Duration::from_secs(1));
 
     // Trees
     println!("Trees");
     update_status(RegionBuilderStatus::Trees);
     plants::plant_trees(planet_idx);
+    std::thread::sleep(Duration::from_secs(1));
 
     // Divide
     // println!("Divide");
