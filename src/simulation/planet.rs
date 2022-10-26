@@ -59,13 +59,13 @@ impl Planet {
 pub fn save_planet(planet: Planet) {
     println!("Saving planet");
     if let Err(err) = save_data(world_save_location("world.dat"), planet) {
-        println!("Error saving world: {:?}", err);
+        println!("Error saving world: {err:?}");
     }
 }
 
 pub fn load_planet() -> Planet {
     match load_data::<Planet>(world_save_location("world.dat")) {
         Ok(planet) => planet,
-        Err(err) => panic!("Error loading world: {:?}", err),
+        Err(err) => panic!("Error loading world: {err:?}"),
     }
 }

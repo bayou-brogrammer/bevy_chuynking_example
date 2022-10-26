@@ -22,7 +22,7 @@ pub fn planet_biomes(planet: &mut Planet) {
             .collect();
 
         if possible_biomes.is_empty() {
-            panic!("No biomes for {:#?}", lb);
+            panic!("No biomes for {lb:#?}");
         } else if let Some(choice) = rng.random_slice_entry(&possible_biomes) {
             planet.landblocks[i].biome_idx = choice.0;
         }

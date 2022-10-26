@@ -27,7 +27,7 @@ pub fn update_view_chunks(
     //perf: optimize this.
     for x in -view_radius.horizontal..=view_radius.horizontal {
         for y in -view_radius.vertical..=view_radius.vertical {
-            if x.pow(2) + y.pow(2) >= view_radius.horizontal.pow(2) {
+            if (x < 0 || y < 0) || x.pow(2) + y.pow(2) >= view_radius.horizontal.pow(2) {
                 continue;
             }
 
@@ -39,7 +39,7 @@ pub fn update_view_chunks(
             };
 
             let loc: ChunkLocation = chunk_key.into();
-
+            println!("chunk key: {loc:?}");
             if chunk_entities.entity(loc).is_none()
                 && !chunk_command_queue.create.contains(&loc)
                 && !chunk_command_queue.destroy.contains(&loc)

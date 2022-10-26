@@ -129,10 +129,6 @@ pub fn embark_menu(
                 let tile_loc = crash_location.to_world() + IVec2 { x: 128, y: 128 };
                 let pos = Position::with_tile_coords(crash_location, tile_loc.x, tile_loc.y);
 
-                println!("Crash Loc: {:?}", crash_location);
-                println!("Tile Loc: {:?}", tile_loc);
-                println!("Pos: {:?}", pos);
-
                 commands
                     .spawn()
                     .insert(Player)
@@ -160,7 +156,7 @@ pub fn embark_menu(
         .show(egui_context.ctx_mut(), |ui| {
             if highlighed_location != IVec2::ZERO {
                 ui.label("Select escape pod target");
-                ui.label(format!("Tile: {}", highlighed_location));
+                ui.label(format!("Tile: {highlighed_location}"));
                 ui.label(description);
             }
         });

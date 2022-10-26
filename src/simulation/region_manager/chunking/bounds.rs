@@ -37,5 +37,3 @@ pub fn planet_idx<N: Into<usize>>(x: N, y: N) -> usize {
 pub fn idx_planet(idx: usize) -> (usize, usize) { (idx % WORLD_WIDTH, idx / WORLD_WIDTH) }
 
 pub fn chunk_idx(x: usize, y: usize) -> usize { (y * CHUNK_SIZE) + x }
-
-pub fn idx_chunk(x: usize, y: usize) -> usize { chunk_idx(x / CHUNK_SIZE, y / CHUNK_SIZE) }

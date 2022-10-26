@@ -25,8 +25,8 @@ pub fn render_state(
                     TileType::Sand => ('.', SANDYBROWN),
                     TileType::Soil => ('.', BROWN1),
                     TileType::Tree(tree_type) => match tree_type {
-                        TreeType::Evergreen => ('T', GREEN),
-                        TreeType::Deciduous => ('T', BROWN1),
+                        TreeType::Evergreen => ('E', GREEN),
+                        TreeType::Deciduous => ('D', BROWN1),
                     },
                     TileType::Plant(plant_type) => match plant_type {
                         PlantType::Grass => ('"', GREEN),

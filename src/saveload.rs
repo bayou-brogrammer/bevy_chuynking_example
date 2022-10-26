@@ -33,11 +33,11 @@ macro_rules! unwrap_or_return {
 }
 
 pub fn chunk_save_location(chunk_file_name: &str) -> String {
-    format!("{}/{}", CHUNK_DIR, chunk_file_name)
+    format!("{CHUNK_DIR}/{chunk_file_name}")
 }
 
 pub fn world_save_location(planet_file: &str) -> String {
-    format!("{}/{}", WORLD_DIR, planet_file)
+    format!("{WORLD_DIR}/{planet_file}")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

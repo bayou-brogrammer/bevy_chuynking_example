@@ -5,10 +5,15 @@ pub enum GameState {
 
     MainMenu,
     WorldGen,
-    PlanetGen,
     Embark,
     RegionGen,
     InGame,
+
+    // Debug States
+    PlanetGen,
+    PlanetGenWait,
+    GenRegion,
+    RegionGenWait,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

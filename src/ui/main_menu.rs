@@ -1,4 +1,4 @@
-use crate::{prelude::*, WindowSettings};
+use crate::prelude::*;
 use bevy_egui::*;
 use bracket_random::prelude::RandomNumberGenerator;
 
@@ -38,7 +38,7 @@ fn tagline() -> String {
         second_noun = get_descriptive_noun(&mut rng);
     }
 
-    tagline = format!("{} of {} and {}", tagline, first_noun, second_noun);
+    tagline = format!("{tagline} of {first_noun} and {second_noun}");
 
     tagline
 }
@@ -46,7 +46,6 @@ fn tagline() -> String {
 pub fn main_menu(
     mut commands: Commands,
     mms: Res<MainMenuState>,
-    window_settings: Res<WindowSettings>,
     mut egui_context: ResMut<EguiContext>,
     mut app_exit_events: ResMut<Events<bevy::app::AppExit>>,
 ) {
@@ -71,29 +70,19 @@ pub fn main_menu(
             }
         });
 
-    egui::Window::new("Dedication")
-        .auto_sized()
-        .resizable(false)
-        .title_bar(false)
-        .fixed_pos(egui::Pos2::new(
-            window_settings.width / 2. - 50.,
-            window_settings.height - 50.0,
-        ))
-        .show(egui_context.ctx_mut(), |ui| {
+    egui::Window::new("Dedication").auto_sized().resizable(false).title_bar(false).show(
+        egui_context.ctx_mut(),
+        |ui| {
             ui.colored_label(egui::Color32::from_rgb(255, 255, 255), DEDICATION);
-        });
+        },
+    );
 
-    egui::Window::new("Copyright")
-        .auto_sized()
-        .title_bar(false)
-        .resizable(false)
-        .fixed_pos(egui::Pos2::new(
-            window_settings.width / 2. - 50.,
-            window_settings.height - 25.0,
-        ))
-        .show(egui_context.ctx_mut(), |ui| {
+    egui::Window::new("Copyright").auto_sized().title_bar(false).resizable(false).show(
+        egui_context.ctx_mut(),
+        |ui| {
             ui.colored_label(egui::Color32::from_rgb(255, 255, 0), COPYRIGHT);
-        });
+        },
+    );
 }
 
 pub fn resume_main_menu(mut commands: Commands, ui: Res<UiAssets>) {

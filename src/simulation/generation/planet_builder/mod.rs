@@ -73,6 +73,8 @@ impl PlanetBuilder {
         Self::default()
     }
 
+    pub fn get_planet(&self) -> Option<Planet> { PLANET_GEN.read().planet.clone() }
+
     pub fn generate(&self, seed: &str, worldgen_lacunarity: f32) {
         let seed = seed.to_string();
         let lacunarity = worldgen_lacunarity;
@@ -88,7 +90,7 @@ impl PlanetBuilder {
             PlanetBuilderStatus::Dividing => String::from("Dividing the heaven and hearth"),
             PlanetBuilderStatus::Coast => String::from("Crinkling up the coastlines"),
             PlanetBuilderStatus::Rainfall { amount } => {
-                format!("Spinning the barometer {}%", amount)
+                format!("Spinning the barometer {amount}%")
             }
             PlanetBuilderStatus::Biomes => String::from("Zooming on on details"),
             PlanetBuilderStatus::Rivers => String::from("Digging the rivers!"),

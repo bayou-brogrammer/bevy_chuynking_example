@@ -100,21 +100,21 @@ fn display_chunk_stats(
                     .filter(|tile| **tile == TileType::Plant(PlantType::Heather))
                     .count();
 
-                ui.label(format!("Chunk Key {:?}", chunk_key));
+                ui.label(format!("Chunk Key {chunk_key:?}"));
                 ui.separator();
 
                 ui.heading("Chunk Tiles");
 
-                ui.label(format!("Chunk floor tiles {:?}", floor));
-                ui.label(format!("Chunk wall tiles {:?}", wall));
-                ui.label(format!("Chunk sand tiles {:?}", sand));
-                ui.label(format!("Chunk soil tiles {:?}", soil));
+                ui.label(format!("Chunk floor tiles {floor:?}"));
+                ui.label(format!("Chunk wall tiles {wall:?}"));
+                ui.label(format!("Chunk sand tiles {sand:?}"));
+                ui.label(format!("Chunk soil tiles {soil:?}"));
 
-                ui.label(format!("Chunk water tiles{:?}", water));
+                ui.label(format!("Chunk water tiles{water:?}"));
 
-                ui.label(format!("Chunk grass tiles {:?}", grass));
-                ui.label(format!("Chunk Daisy tiles {:?}", daisy));
-                ui.label(format!("Chunk Heather tiles {:?}", heather));
+                ui.label(format!("Chunk grass tiles {grass:?}"));
+                ui.label(format!("Chunk Daisy tiles {daisy:?}"));
+                ui.label(format!("Chunk Heather tiles {heather:?}"));
 
                 ui.separator();
             });

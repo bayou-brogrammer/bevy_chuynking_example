@@ -25,7 +25,6 @@ fn get_soil_indices() -> Vec<usize> {
         .filter(|(_, m)| matches!(m.layer, MaterialLayer::Soil { .. }))
         .map(|(i, _)| i)
         .collect()
-    //Vec::new()
 }
 
 pub struct StrataMaterials {

@@ -91,16 +91,20 @@ fn main() {
 
     app.init_resource::<UiResources>()
         .insert_resource(ChunkMap::<TileType, ChunkShape>::new(ChunkShape {}))
-        .add_startup_system(setup)
-        .add_system(window_settings);
+        .add_startup_system(setup);
 
-    app.add_system_set(
-        ConditionSet::new()
-            .run_in_state(GameState::RegionGen)
-            .with_system(load_regions)
-            .with_system(region_tile_applicator_system)
-            .into(),
-    );
+    app.insert_resource(PlanetBuilder::new())
+        .add_enter_system(GameState::PlanetGen, spawn_planet)
+        .add_system(wait_for_planet_spawn.run_in_state(GameState::PlanetGenWait))
+        .add_system(wait_for_region_spawn.run_in_state(GameState::RegionGenWait));
+
+    // app.add_system_set(
+    //     ConditionSet::new()
+    //         .run_in_state(GameState::RegionGen)
+    //         // .with_system(load_regions)
+    //         .with_system(region_tile_applicator_system)
+    //         .into(),
+    // );
 
     app.run();
 }
@@ -109,14 +113,50 @@ pub fn setup(mut commands: Commands) {
     commands.spawn_bundle(Camera2dBundle::default()).insert(BracketCamera);
 }
 
-pub struct WindowSettings {
-    width: f32,
-    height: f32,
+pub fn spawn_planet(mut commands: Commands, rng: Res<RandomNumbers>) {
+    let seed = rng.rand::<u64>();
+    let worldgen_lacunarity = rng.range(2., 4.);
+
+    let pb = PlanetBuilder::new();
+    pb.generate(&seed.to_string(), worldgen_lacunarity);
+    commands.insert_resource(pb);
+    commands.insert_resource(NextState(GameState::PlanetGenWait));
 }
 
-pub fn window_settings(mut commands: Commands, mut windows: ResMut<Windows>) {
-    if let Some(window) = windows.get_primary_mut() {
-        let window_data = WindowSettings { width: window.width(), height: window.height() };
-        commands.insert_resource(window_data);
+pub fn wait_for_planet_spawn(mut commands: Commands, pb: Res<PlanetBuilder>) {
+    if pb.is_done() {
+        let planet = pb.get_planet().unwrap();
+        let crash_location = PlanetLocation::new((0, 0).into());
+        let tile_loc = crash_location.to_world();
+        let pos = Position::with_tile_coords(crash_location, tile_loc.x, tile_loc.y);
+
+        commands
+            .spawn()
+            .insert(Player)
+            .insert(pos)
+            .insert(Glyph::new(
+                to_cp437('@'),
+                ColorPair::new(WHITE, BLACK),
+                RenderOrder::Actor,
+            ))
+            .insert(FieldOfView::new(8));
+
+        commands.insert_resource(CurrentLocalPlayerChunk::new(
+            crash_location.to_world(),
+            tile_loc,
+        ));
+        commands.insert_resource(CameraView::new(Point::new(tile_loc.x, tile_loc.y)));
+
+        let mut rb = RegionBuilder::new(planet, crash_location);
+        rb.generate();
+
+        commands.insert_resource(rb);
+        commands.insert_resource(NextState(GameState::RegionGenWait));
+    }
+}
+
+pub fn wait_for_region_spawn(mut commands: Commands, rb: Res<RegionBuilder>) {
+    if rb.is_done() {
+        commands.insert_resource(NextState(GameState::InGame));
     }
 }

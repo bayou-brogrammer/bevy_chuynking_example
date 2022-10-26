@@ -20,7 +20,7 @@ impl Plugin for SystemsPlugin {
             ConditionSet::new()
                 .run_in_state(GameState::InGame)
                 .with_system(movement)
-                .with_system(fov)
+                // .with_system(fov)
                 .into(),
         );
     }

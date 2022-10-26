@@ -41,7 +41,6 @@ impl Plugin for ChunkingPlugin {
                             .after(ChunkLoadingSystem::UpdateViewChunks)
                             .run_in_state(GameState::InGame)
                             .with_system(create_chunks)
-                            .with_system(process_chunk_load)
                             .into(),
                     ),
             )
@@ -50,7 +49,6 @@ impl Plugin for ChunkingPlugin {
                 ConditionSet::new()
                     .run_in_state(GameState::InGame)
                     .with_system(destroy_chunks)
-                    .with_system(process_chunk_save)
                     .into(),
             )
             .add_system_set_to_stage(
